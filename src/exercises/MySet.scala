@@ -57,14 +57,27 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
   /**
    * my implementation contains the error - missed existing element check
    * def ++(anotherSet: MySet[A]): NonEmptySet[A] = NonEmptySet(h, t ++ anotherSet)
+   *
+   * explanation:
+   * [1 2 3] ++ [1 4 5] =
+   * [2 3] ++ [1 4 5] + 1 =
+   * [3] ++ [1 4 5] + 1 + 2 =
+   * [] ++ [1 4 5] + 1 + 2 + 3 =
+   * [1 4 5] + 1 + 2 + 3 =
+   * [1 4 5] + 2 + 3 =
+   * [1 4 5 2 3]
    */
   def ++(anotherSet: MySet[A]): MySet[A] = t ++ anotherSet + h
   def isEmpty: Boolean = false
   def head: A = h
   def tail: MySet[A] = t
 
+  /**
+   * Daniels implementation
+   * def map[B](f: A => B): MySet[B] = t map f + f(h)
+   */
   def map[B](f: A => B): NonEmptySet[B] = NonEmptySet(f(h), t.map(f))
-  def flatMap[B](f: A => MySet[B]): MySet[B] = f(h) ++ t.flatMap(f)
+  def flatMap[B](f: A => MySet[B]): MySet[B] = (t flatMap f) ++ f(h)
   def filter(predicate: A => Boolean): MySet[A] =
     if (predicate(h)) NonEmptySet(h, t.filter(predicate))
     else t.filter(predicate)
@@ -88,4 +101,6 @@ object MySetTest extends App {
   mySet + 3 filter { _ % 2 == 0 } foreach println
   println("=== # ++ ===")
   mySet ++ NonEmptySet(1, NonEmptySet(2, NonEmptySet(4, emptySet))) foreach println
+  println("=== # flatMap ===")
+  mySet + 3 flatMap { el => NonEmptySet(el, NonEmptySet(el + 1, emptySet)) } foreach println
 }
