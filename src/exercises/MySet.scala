@@ -54,7 +54,11 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
     if (this contains elem) this
     else NonEmptySet(elem, this)
 
-  def ++(anotherSet: MySet[A]): NonEmptySet[A] = NonEmptySet(h, t ++ anotherSet)
+  /**
+   * my implementation contains the error - missed existing element check
+   * def ++(anotherSet: MySet[A]): NonEmptySet[A] = NonEmptySet(h, t ++ anotherSet)
+   */
+  def ++(anotherSet: MySet[A]): MySet[A] = t ++ anotherSet + h
   def isEmpty: Boolean = false
   def head: A = h
   def tail: MySet[A] = t
@@ -82,4 +86,6 @@ object MySetTest extends App {
   mySet + 3 map { _ + 1} foreach println
   println("=== # filter ===")
   mySet + 3 filter { _ % 2 == 0 } foreach println
+  println("=== # ++ ===")
+  mySet ++ NonEmptySet(1, NonEmptySet(2, NonEmptySet(4, emptySet))) foreach println
 }
