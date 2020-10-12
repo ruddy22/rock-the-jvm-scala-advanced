@@ -46,21 +46,33 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
       else search(set.tail)
     search(this)
   }
-  def +(elem: A): NonEmptySet[A] = ???
+  def +(elem: A): NonEmptySet[A] = NonEmptySet(elem, this)
   def ++(anotherSet: MySet[A]): NonEmptySet[A] = ???
   def isEmpty: Boolean = false
   def head: A = h
   def tail: MySet[A] = t
 
-  def map[B](f: A => B): NonEmptySet[B] = ???
-  def flatMap[B](f: A => MySet[B]): NonEmptySet[B] = ???
-  def filter(predicate: A => Boolean): MySet[A] = ???
-  def foreach(f: A => Unit): Unit = ???
+  def map[B](f: A => B): NonEmptySet[B] = NonEmptySet(f(h), t.map(f))
+  def flatMap[B](f: A => MySet[B]): NonEmptySet[B] = f(h) + t.flatMap(f)
+  def filter(predicate: A => Boolean): MySet[A] =
+    if (predicate(h)) NonEmptySet(h, t.filter(predicate))
+    else t.filter(predicate)
+  def foreach(f: A => Unit): Unit = {
+    f(h)
+    t.foreach(f)
+  }
 }
 
 object MySetTest extends App {
   println(1)
   val emptySet = new EmptySet[Int]
   val mySet = NonEmptySet(1, NonEmptySet(2, emptySet))
+  println("=== # contains ===")
   println(mySet.contains(2))
+  println("=== # foreach ===")
+  mySet + 3 foreach println
+  println("=== # map ===")
+  mySet + 3 map { _ + 1} foreach println
+  println("=== # filter ===")
+  mySet + 3 filter { _ % 2 == 0 } foreach println
 }
