@@ -50,7 +50,10 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
       else search(set.tail)
     search(this)
   }
-  def +(elem: A): NonEmptySet[A] = NonEmptySet(elem, this)
+  def +(elem: A): NonEmptySet[A] =
+    if (this contains elem) this
+    else NonEmptySet(elem, this)
+
   def ++(anotherSet: MySet[A]): NonEmptySet[A] = NonEmptySet(h, t ++ anotherSet)
   def isEmpty: Boolean = false
   def head: A = h
