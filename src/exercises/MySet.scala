@@ -78,12 +78,22 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
    */
   def map[B](f: A => B): NonEmptySet[B] = NonEmptySet(f(h), t.map(f))
   def flatMap[B](f: A => MySet[B]): MySet[B] = (t flatMap f) ++ f(h)
+
+  /**
+   * Daniels implementation
+   *
+   * def filter(predicate: A => Boolean): MySet[A] = {
+   *   val filteredTail = tail filter predicate
+   *   if (predicate(h)) filteredTail + h
+   *   else filteredTail
+   * }
+   */
   def filter(predicate: A => Boolean): MySet[A] =
     if (predicate(h)) NonEmptySet(h, t.filter(predicate))
     else t.filter(predicate)
   def foreach(f: A => Unit): Unit = {
     f(h)
-    t.foreach(f)
+    t foreach f
   }
 }
 
