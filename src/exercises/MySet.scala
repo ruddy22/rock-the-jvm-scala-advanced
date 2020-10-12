@@ -38,6 +38,10 @@ class EmptySet[A] extends MySet[A] {
 }
 
 case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
+  /**
+   * Daniels `contains` method implementation
+   * def contains(elem: A): Boolean = elem == head || t.contains(elem)
+   */
   def contains(elem: A): Boolean = {
     @tailrec
     def search(set: MySet[A]): Boolean =
