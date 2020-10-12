@@ -97,10 +97,31 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
   }
 }
 
+object MySet {
+  /**
+   * explanation
+   * val s = MySet(1,2,3,3) =
+   * buildSet(seq(1,2,3,3), []) =
+   * buildSet(seq(2,3,3), [] + 1) =
+   * buildSet(seq(3,3), [1] + 2) =
+   * buildSet(seq(3), [1, 2] + 3) =
+   * buildSet(seq(), [1, 2, 3] + 3) =
+   * buildSet(seq(), [1, 2, 3]) =
+   * [1,2,3]
+   */
+  def apply[A](values: A*): MySet[A] = {
+    @tailrec
+    def buildSet(valSeq: Seq[A], acc: MySet[A]): MySet[A] =
+      if (valSeq.isEmpty) acc
+      else buildSet(valSeq.tail, acc + valSeq.head)
+
+    buildSet(values, new EmptySet[A])
+  }
+}
+
 object MySetTest extends App {
   println(1)
-  val emptySet = new EmptySet[Int]
-  val mySet = NonEmptySet(1, NonEmptySet(2, emptySet))
+  val mySet = MySet(1,2,8)
   println("=== # contains ===")
   println(mySet.contains(2))
   println("=== # foreach ===")
@@ -110,7 +131,9 @@ object MySetTest extends App {
   println("=== # filter ===")
   mySet + 3 filter { _ % 2 == 0 } foreach println
   println("=== # ++ ===")
-  mySet ++ NonEmptySet(1, NonEmptySet(2, NonEmptySet(4, emptySet))) foreach println
+  mySet ++ MySet(1, 2, 4) foreach println
   println("=== # flatMap ===")
-  mySet + 3 flatMap { el => NonEmptySet(el, NonEmptySet(el + 1, emptySet)) } foreach println
+  mySet + 3 flatMap { el => MySet(el, el * 10) } foreach println
+  println("complex example")
+  MySet(1,2,3) + 3 ++ MySet(-1, -2) map(x => x + 2) flatMap(x => MySet(x, x * 10)) filter (_ > 20) foreach println
 }
