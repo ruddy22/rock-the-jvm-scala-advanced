@@ -47,13 +47,13 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
     search(this)
   }
   def +(elem: A): NonEmptySet[A] = NonEmptySet(elem, this)
-  def ++(anotherSet: MySet[A]): NonEmptySet[A] = ???
+  def ++(anotherSet: MySet[A]): NonEmptySet[A] = NonEmptySet(h, t ++ anotherSet)
   def isEmpty: Boolean = false
   def head: A = h
   def tail: MySet[A] = t
 
   def map[B](f: A => B): NonEmptySet[B] = NonEmptySet(f(h), t.map(f))
-  def flatMap[B](f: A => MySet[B]): NonEmptySet[B] = f(h) + t.flatMap(f)
+  def flatMap[B](f: A => MySet[B]): MySet[B] = f(h) ++ t.flatMap(f)
   def filter(predicate: A => Boolean): MySet[A] =
     if (predicate(h)) NonEmptySet(h, t.filter(predicate))
     else t.filter(predicate)
