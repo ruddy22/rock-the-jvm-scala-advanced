@@ -11,8 +11,8 @@ trait MySet[A] extends (A => Boolean ) {
   def apply(elem: A): Boolean = contains(elem)
 
   def contains(elem: A): Boolean
-  def +(elem: A): MySet[A]
-  def ++(anotherSet: MySet[A]): MySet[A]
+  def +(elem: A): MySet[A] // add
+  def ++(anotherSet: MySet[A]): MySet[A] // union
   def isEmpty(): Boolean
   def head: A
   def tail: MySet[A]
@@ -21,6 +21,12 @@ trait MySet[A] extends (A => Boolean ) {
   def flatMap[B](f: A => MySet[B]): MySet[B]
   def filter(predicate: A => Boolean): MySet[A]
   def foreach(f: A => Unit): Unit
+
+  def -(elem: A): MySet[A] // remove
+  def --(anotherSet: MySet[A]): MySet[A] // difference
+  def &(anotherSet: MySet[A]): MySet[A] // intersection
+
+  def unary_! : MySet[A] // negation of a set
 }
 
 class EmptySet[A] extends MySet[A] {
@@ -35,6 +41,12 @@ class EmptySet[A] extends MySet[A] {
   def flatMap[B](f: A => MySet[B]): MySet[B] = new EmptySet[B]
   def filter(predicate: A => Boolean): MySet[A] = this
   def foreach(f: A => Unit): Unit = ()
+
+  def -(elem: A): MySet[A] = this
+  def --(anotherSet: MySet[A]): MySet[A] = this
+  def &(anotherSet: MySet[A]): MySet[A] = this
+
+  def unary_! : MySet[A] = ???
 }
 
 case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
@@ -95,6 +107,15 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
     f(h)
     t foreach f
   }
+
+  def -(elem: A): MySet[A] =
+    if (h == elem) t
+    else t - elem + h
+
+  def --(anotherSet: MySet[A]): MySet[A] = filter(!anotherSet)
+  def &(anotherSet: MySet[A]): MySet[A] = filter(anotherSet)
+
+  def unary_! : MySet[A] = ???
 }
 
 object MySet {
