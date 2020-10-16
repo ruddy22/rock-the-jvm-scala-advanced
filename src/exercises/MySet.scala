@@ -2,12 +2,11 @@ package exercises
 
 import scala.annotation.tailrec
 
+/**
+ * Exercise: Implement a functional set
+ */
+
 trait MySet[A] extends (A => Boolean ) {
-
-  /**
-   * Exercise: Implement a functional set
-   */
-
   def apply(elem: A): Boolean = contains(elem)
 
   def contains(elem: A): Boolean
@@ -46,7 +45,7 @@ class EmptySet[A] extends MySet[A] {
   def --(anotherSet: MySet[A]): MySet[A] = this
   def &(anotherSet: MySet[A]): MySet[A] = this
 
-  def unary_! : MySet[A] = ???
+  def unary_! : MySet[A] = PropertyBasedSet[A](_ => true)
 }
 
 case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
@@ -115,7 +114,33 @@ case class NonEmptySet[A](h: A, t: MySet[A]) extends MySet[A] {
   def --(anotherSet: MySet[A]): MySet[A] = filter(!anotherSet)
   def &(anotherSet: MySet[A]): MySet[A] = filter(anotherSet)
 
-  def unary_! : MySet[A] = ???
+  def unary_! : MySet[A] = PropertyBasedSet[A](x => !this.contains(x))
+}
+
+// all elements of type A which satisfy a property
+// { x in A | property(x) }
+case class PropertyBasedSet[A](property: A => Boolean) extends MySet[A] {
+  def contains(elem: A): Boolean = property(elem)
+  // { x in A | property(x) } + element = { x in A | property(x) || x == element }
+  def +(elem: A): MySet[A] = PropertyBasedSet[A](x => property(x) || x == elem)
+  // { x in A | property(x) } ++ set = { x in A | property(x) || set contains x }
+  def ++(anotherSet: MySet[A]): MySet[A] = PropertyBasedSet[A](x => property(x) || anotherSet(x))
+
+  def isEmpty(): Boolean = ???
+  def head: A = ???
+  def tail: MySet[A] = ???
+  def map[B](f: A => B): MySet[B] = politelyFail
+  def flatMap[B](f: A => MySet[B]): MySet[B] = politelyFail
+  def foreach(f: A => Unit): Unit = politelyFail
+
+  def filter(predicate: A => Boolean): MySet[A] = PropertyBasedSet(x => property(x) & predicate(x))
+
+  def -(elem: A): MySet[A] = filter(x => x != elem)
+  def --(anotherSet: MySet[A]): MySet[A] = filter(!anotherSet)
+  def &(anotherSet: MySet[A]): MySet[A] = filter(anotherSet)
+
+  def unary_! : MySet[A] = PropertyBasedSet[A](x => !property(x))
+  def politelyFail = throw new IllegalArgumentException("Really deep rabbit hole")
 }
 
 object MySet {
@@ -157,4 +182,7 @@ object MySetTest extends App {
   mySet + 3 flatMap { el => MySet(el, el * 10) } foreach println
   println("complex example")
   MySet(1,2,3) + 3 ++ MySet(-1, -2) map(x => x + 2) flatMap(x => MySet(x, x * 10)) filter (_ > 20) foreach println
+  println("set negation")
+  val notMySet = !mySet // set of elements without 1, 2, 8
+  println(notMySet(8))
 }
