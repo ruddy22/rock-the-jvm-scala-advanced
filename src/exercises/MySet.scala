@@ -185,4 +185,9 @@ object MySetTest extends App {
   println("set negation")
   val notMySet = !mySet // set of elements without 1, 2, 8
   println(notMySet(8))
+  println(notMySet(4))
+  println((notMySet + 8)(8))
+  println(notMySet.filter(x => x > 8 && x < 15)(9))
+  println(notMySet.filter(x => x > 8 && x < 15)(8))
+  println(notMySet.filter(x => x > 8 && x < 15)(16))
 }
