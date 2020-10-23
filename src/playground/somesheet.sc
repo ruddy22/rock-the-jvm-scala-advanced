@@ -31,11 +31,11 @@ println(byFunction(() => 1))
 // method
 def method: Int = 42
 println(byName(method))
-println(byFunction(method _))
+//println(byFunction(method _)) // deprecated
 
 // parenMethod
 def parenMethod(): Int = 42
-println(byName(parenMethod))
+println(byName(parenMethod()))
 println(byFunction(parenMethod))
 
 val plus1: Int => Int = n => n + 1
@@ -72,4 +72,25 @@ println(procLst(3, List(1,2,3,4)))
 
 val fibs:LazyList[Int] = 0 #:: 1 #:: (fibs zip fibs.tail).map{ t => t._1 + t._2 }
 println(fibs.iterator.next)
+
+val codeBlock = {
+  println(42)
+  42
+}
+
+trait Lazy[T] {
+  def flatMap[B](f: T => Lazy[B]): Lazy[B]
+}
+
+case class Lazyy[T](param: T) extends Lazy[T] {
+  def flatMap[B](f: T => Lazy[B]): Lazy[B] = f(param)
+}
+
+object Lazy {
+  def apply[T](param: => T): Lazy[T] = Lazyy(param)
+}
+
+val lz = Lazyy(codeBlock)
+
+println(lz.flatMap(x => Lazyy(x + 1)))
 
