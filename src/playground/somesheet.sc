@@ -73,21 +73,32 @@ println(procLst(3, List(1,2,3,4)))
 val fibs:LazyList[Int] = 0 #:: 1 #:: (fibs zip fibs.tail).map{ t => t._1 + t._2 }
 println(fibs.iterator.next)
 
-val codeBlock = {
-  println(42)
-  42
-}
+
+//case class Monad[T](x: T) {
+//  def flatMap[B](f: T => Monad[B]): Monad[B] = f(x)
+//  def use: T = x
+//  def map[B](f: T => B): Monad[B] = Monad(f(x))
+//  def flatten(m: Monad[Monad[T]]): Monad[T] = m.use
+//}
+//
+//object Monad {
+//  def apply[T](x: T): Monad[T] = Monad(x)
+//}
+//
+//val mappedMonadValue = Monad(1).flatMap(x => Monad(x + 1)).map(x => x + 1)
+//println(mappedMonadValue)
+
+/**
+ * apparently, I misunderstood the task ...
+ * it turned out that it was necessary to implement `map` and` flatten` in terms of `flatMp`
+ */
 
 case class Monad[T](x: T) {
   def flatMap[B](f: T => Monad[B]): Monad[B] = f(x)
-  def use: T = x
-  def map[B](f: T => B): Monad[B] = Monad(f(x))
-  def flatten(m: Monad[Monad[T]]): Monad[T] = m.use
+  def map[B](f: T => B): Monad[B] = flatMap(x => Monad(f(x)))
+  def flatten(m: Monad[Monad[T]]): Monad[T] = m.flatMap(x => x)
 }
-
 object Monad {
   def apply[T](x: T): Monad[T] = Monad(x)
 }
 
-val mappedMonadValue = Monad(1).flatMap(x => Monad(x + 1)).map(x => x + 1)
-println(mappedMonadValue)
