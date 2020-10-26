@@ -27,7 +27,8 @@ package exercises
  */
 
 class Lazy[+T](x: => T) {
-  def flatMap[B](f: T => Lazy[B]): Lazy[B] = f(x)
+  // call by need
+  def flatMap[B](f: (=> T) => Lazy[B]): Lazy[B] = f(x)
   def use: T = x
 }
 object Lazy {
@@ -71,5 +72,7 @@ object MyMonads extends App {
     println("this is side effect")
     42
   }
-  println(lz.flatMap(x => Lazy(x + 1)).use)
+
+  val lz1 = lz.flatMap(x => Lazy(x + 1))
+  val lz2 = lz.flatMap(x => Lazy(x + 1))
 }
