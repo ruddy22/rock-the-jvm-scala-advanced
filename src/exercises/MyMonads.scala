@@ -27,9 +27,10 @@ package exercises
  */
 
 class Lazy[+T](x: => T) {
+  private lazy val internalValue = x
   // call by need
-  def flatMap[B](f: (=> T) => Lazy[B]): Lazy[B] = f(x)
-  def use: T = x
+  def flatMap[B](f: (=> T) => Lazy[B]): Lazy[B] = f(internalValue)
+  def use: T = internalValue
 }
 object Lazy {
   def apply[T](x: => T): Lazy[T] = new Lazy[T](x)
@@ -75,4 +76,7 @@ object MyMonads extends App {
 
   val lz1 = lz.flatMap(x => Lazy(x + 1))
   val lz2 = lz.flatMap(x => Lazy(x + 1))
+
+  lz1.use
+  lz2.use
 }
