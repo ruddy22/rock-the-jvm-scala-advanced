@@ -25,18 +25,18 @@ def byName(n: => Int): Int = n + 1
 def byFunction(f: () => Int): Int = f() + 1
 
 // Int
-println(byName(1))
-println(byFunction(() => 1))
+//println(byName(1))
+//println(byFunction(() => 1))
 
 // method
 def method: Int = 42
-println(byName(method))
+//println(byName(method))
 //println(byFunction(method _)) // deprecated
 
 // parenMethod
 def parenMethod(): Int = 42
-println(byName(parenMethod()))
-println(byFunction(parenMethod))
+//println(byName(parenMethod()))
+//println(byFunction(parenMethod))
 
 val plus1: Int => Int = n => n + 1
 //byName(plus1)
@@ -78,19 +78,16 @@ val codeBlock = {
   42
 }
 
-trait Lazy[T] {
-  def flatMap[B](f: T => Lazy[B]): Lazy[B]
+case class Monad[T](x: T) {
+  def flatMap[B](f: T => Monad[B]): Monad[B] = f(x)
+  def use: T = x
+  def map[B](f: T => B): Monad[B] = Monad(f(x))
+  def flatten(m: Monad[Monad[T]]): Monad[T] = m.use
 }
 
-case class Lazyy[T](param: T) extends Lazy[T] {
-  def flatMap[B](f: T => Lazy[B]): Lazy[B] = f(param)
+object Monad {
+  def apply[T](x: T): Monad[T] = Monad(x)
 }
 
-object Lazy {
-  def apply[T](param: => T): Lazy[T] = Lazyy(param)
-}
-
-val lz = Lazyy(codeBlock)
-
-println(lz.flatMap(x => Lazyy(x + 1)))
-
+val mappedMonadValue = Monad(1).flatMap(x => Monad(x + 1)).map(x => x + 1)
+println(mappedMonadValue)
