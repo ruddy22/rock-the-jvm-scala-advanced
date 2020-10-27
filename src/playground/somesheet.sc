@@ -110,3 +110,5 @@ List(List(1,2), List(3,4)).flatMap(x => x) // List(1,2,3,4)
 // map
 List(1,2,3,4).flatMap(x => List(x + 1)) // List(2,3,4,5)
 
+(1 to 10)
+
